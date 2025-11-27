@@ -1,0 +1,182 @@
+[
+  {
+    "category": "ネットワーク基礎 & L1/L2 (Access)",
+    "icon": "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10\"></path>",
+    "topics": [
+      { 
+        "title": "OSI参照モデルとカプセル化", 
+        "description": "7階層の役割、ヘッダ付与(カプセル化)、物理層/データリンク層の役割", 
+        "tags": ["基礎", "理論"],
+        "details": "### OSI参照モデルの概要\n通信機能を7つの階層に分割し、各層が独立して機能することで、複雑なネットワーク処理を単純化しています。\n\n1. **物理層 (Physical Layer)**: ビット列の電気信号・光信号への変換。ケーブルやコネクタの形状を規定。\n2. **データリンク層 (Data Link Layer)**: 直接接続された機器間の信号の受け渡し。MACアドレスによる識別、FCSによる誤り検知。\n3. **ネットワーク層 (Network Layer)**: 異なるネットワーク間の通信(ルーティング)。IPアドレス。\n4. **トランスポート層 (Transport Layer)**: 通信品質の確保。TCP/UDP。\n5. **セッション層 (Session Layer)**: 通信の開始から終了までの手順管理。\n6. **プレゼンテーション層 (Presentation Layer)**: データの表現形式（文字コード、圧縮、暗号化）の変換。\n7. **アプリケーション層 (Application Layer)**: 利用者が操作するソフトウェアへのサービス提供。\n\n### カプセル化と非カプセル化\n送信側は上位層から下位層へデータを渡す際、各層で「ヘッダ」を付与します（カプセル化）。受信側は下位層から上位層へ渡す際にヘッダを外していきます（非カプセル化）。"
+      },
+      { 
+        "title": "データ表現と計算", 
+        "description": "2進数/10進数/16進数変換、サブネット計算、EtherType(0x0800/0x0806)", 
+        "tags": ["基礎", "計算"],
+        "details": "### 基数変換の重要性\nIPアドレスやサブネットマスクの計算には、2進数と10進数の相互変換が必須です。\n\n- **2進数 (Binary)**: 0と1のみ。コンピュータ内部の処理。\n- **10進数 (Decimal)**: 人間が扱う通常の数値。\n- **16進数 (Hexadecimal)**: 2進数4桁を1桁で表現。MACアドレスやIPv6で使用。\n\n### EtherType\nイーサネットフレームに含まれるフィールドで、上位層（L3）のプロトコルを識別します。\n- `0x0800`: IPv4\n- `0x0806`: ARP\n- `0x86DD`: IPv6\nパケットキャプチャ解析時にこれらの値を瞬時に識別できることが重要です。"
+      },
+      { 
+        "title": "イーサネット物理層とPoE", 
+        "description": "Catケーブル規格、PoE/PoE+/PoE++(802.3af/at/bt)の給電能力と設計", 
+        "tags": ["L1", "設備"],
+        "details": "### ツイストペアケーブルのカテゴリ\n- **Cat5e**: 1Gbps (100MHz)\n- **Cat6**: 1Gbps (250MHz) ※短距離で10G可\n- **Cat6A**: 10Gbps (500MHz) ※現在の主流\n\n### Power over Ethernet (PoE)\nLANケーブルを通じて電力とデータを同時に供給する技術です。\n\n| 規格 | 通称 | 最大供給電力(PSE) | 主な用途 |\n|---|---|---|---|\n| IEEE 802.3af | PoE | 15.4W | IP電話、Webカメラ |\n| IEEE 802.3at | PoE+ | 30.0W | 高機能AP (Wi-Fi 5/6) |\n| IEEE 802.3bt | PoE++ | 60W / 100W | デジタルサイネージ、PTZカメラ |\n\nスイッチ選定時は、1ポートあたりの電力だけでなく、スイッチ全体の給電能力（パワーバジェット）に注意が必要です。"
+      },
+      { 
+        "title": "L2スイッチングとVLAN", 
+        "description": "MAC学習、802.1QタグVLAN、ネイティブVLANのリスク", 
+        "tags": ["L2", "構築"],
+        "details": "### スイッチング動作\n1. **学習**: 受信フレームの「送信元MACアドレス」と「受信ポート」をMACアドレステーブルに登録。\n2. **転送**: 「宛先MACアドレス」を見て、テーブルにあれば該当ポートのみ転送（ユニキャスト）。なければ全ポートへ転送（フラッディング）。\n\n### VLAN (Virtual LAN)\n物理構成に依存せず、論理的にネットワークを分割する技術。\n- **アクセスポート**: 1つのVLANに所属。タグなし。\n- **トランクポート**: 複数のVLANを通過させる。IEEE 802.1Qにより4バイトのタグを挿入して識別。\n\n### ネイティブVLAN\nトランクポート上でタグを付けずに通信するVLAN。セキュリティリスク（VLANホッピング攻撃）回避のため、未使用VLAN IDを割り当てる等の対策が推奨されます。"
+      },
+      { 
+        "title": "STPの進化 (STP/RSTP/MSTP)", 
+        "description": "802.1D/w/sの違い、収束時間短縮、PortFast/EdgePortの設定", 
+        "tags": ["L2", "冗長化"],
+        "details": "### スパニングツリープロトコル (STP)\n物理的なループ構成を検知し、特定のポートを論理的にブロックすることでブロードキャストストームを防ぎます。\n\n### プロトコルの進化\n- **STP (802.1D)**: 収束に30〜50秒かかる。現在はあまり使われない。\n- **RSTP (802.1w)**: Rapid STP。数秒以内で高速収束が可能。現在の主流。\n- **MSTP (802.1s)**: Multiple STP。VLANグループごとにツリーを作成し、負荷分散が可能。\n\n### PortFast / Edge Port\nPCやサーバが接続されるポートでSTP計算をスキップし、即座に通信可能にする設定。DHCPタイムアウトなどを防ぐために必須の設定です。"
+      },
+      { 
+        "title": "リンクアグリゲーション (LAG)", 
+        "description": "LACP(802.3ad)、ハッシュアルゴリズムによる負荷分散、ポラライゼーション回避", 
+        "tags": ["L2", "帯域拡張"],
+        "details": "### リンクアグリゲーション\n複数の物理ポートを束ねて1つの論理ポートとして扱い、帯域幅の拡大と冗長性を提供します。\n- **LACP (IEEE 802.3ad/802.1ax)**: 自動ネゴシエーションプロトコル。対向機器と設定不一致があればリンクアップしないため安全。\n- **Static**: 強制的に束ねる。\n\n### 負荷分散（ロードバランス）\nパケットをどの物理ケーブルに流すかは「ハッシュアルゴリズム」で決まります（送信元MAC/IP、宛先MAC/IPの組み合わせなど）。\n不適切なハッシュ設定は、特定のケーブルのみ混雑する「ポラライゼーション」を引き起こす可能性があります。"
+      }
+    ]
+  },
+  {
+    "category": "IPルーティング & L3 (Core/Distribution)",
+    "icon": "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7\"></path>",
+    "topics": [
+      { 
+        "title": "IPアドレッシング詳細", 
+        "description": "VLSM/CIDRによる効率化、プライベートIPとNAT/NAPT", 
+        "tags": ["L3", "設計"],
+        "details": "### クラスレスアドレッシング (CIDR)\nIPアドレスのクラス（A, B, C）概念を撤廃し、プレフィックス長（/24など）でネットワーク部を区切る方式です。これによりIPアドレスの浪費を防ぎます。\n\n### VLSM (Variable Length Subnet Mask)\n同一ネットワーク内で異なる長さのサブネットマスクを使用する技術。ルータ間接続には/30、ユーザー用には/24などを使い分けます。\n\n### NAT / NAPT\n- **NAT**: グローバルIPとプライベートIPを1対1変換。\n- **NAPT (IPマスカレード)**: ポート番号を使って、1つのグローバルIPを複数のプライベートIPで共有変換。現在のインターネット接続の主流です。"
+      },
+      { 
+        "title": "ルーティングプロトコル (OSPF/BGP)", 
+        "description": "リンクステート(OSPF)のエリア概念、パスベクタ(BGP)のパス属性制御", 
+        "tags": ["プロトコル", "経路制御"],
+        "details": "### OSPF (Open Shortest Path First)\n- **タイプ**: リンクステート型 (IGP)\n- **メトリック**: コスト（帯域幅に基づく）\n- **特徴**: エリア概念による階層設計が可能。収束が速い。ダイクストラアルゴリズムを使用。\n\n### BGP (Border Gateway Protocol)\n- **タイプ**: パスベクタ型 (EGP)\n- **メトリック**: パス属性（AS Path, Local Preference, MED等）\n- **特徴**: ISP間や大規模組織間の接続で使用。柔軟なポリシールーティングが可能ですが、設定は複雑です。"
+      },
+      { 
+        "title": "アドレス解決とICMP", 
+        "description": "ARP/GARPの挙動、Ping/TraceのICMP Type3コード解析", 
+        "tags": ["トラブルシュート", "L3"],
+        "details": "### ARP (Address Resolution Protocol)\nIPアドレスからMACアドレスを知るためのプロトコル。\n- **GARP (Gratuitous ARP)**: 自分自身のIPアドレスに対するARP。IP重複検知や、VRRP切り替わり時のスイッチテーブル更新（MAC移動通知）に使用されます。\n\n### ICMP (Internet Control Message Protocol)\n疎通確認やエラー通知に使用。\n- **Echo Request/Reply**: Pingで使用。\n- **Time Exceeded**: Tracerouteで使用（TTL減算）。\n- **Destination Unreachable (Type 3)**: 宛先到達不能。Codeを見ることで「NWがない」「ホストがない」「ポートが閉じている」等の原因特定が可能です。"
+      },
+      { 
+        "title": "デフォルトGW冗長化 (FHRP)", 
+        "description": "VRRP/HSRP/GLBPの比較、仮想MAC仕様、プリエンプト設定", 
+        "tags": ["冗長化", "可用性"],
+        "details": "### FHRP (First Hop Redundancy Protocol)\nデフォルトゲートウェイ（ルータ）が故障しても通信を継続させる技術です。\n\n- **VRRP**: 標準規格。マルチベンダー対応。仮想MACは `00-00-5E-00-01-XX`。\n- **HSRP**: Cisco独自。仮想MACは `00-00-0C-07-AC-XX`。\n\n### 重要な設定\n- **Priority**: 値が大きい方がマスター（アクティブ）になる。\n- **Preempt (プリエンプト)**: 復旧時にマスター権限を取り戻す機能。頻繁な切り替わり（フラップ）を防ぐため、Delay設定と併用するのが定石です。"
+      },
+      { 
+        "title": "WAN技術: PPPoE実装", 
+        "description": "PPP over Eth、MTU/MRU(1454B)調整、FortiGate/Yamaha CLI設定", 
+        "tags": ["WAN", "構築"],
+        "details": "### PPPoE (PPP over Ethernet)\nイーサネット上で認証機能を持つPPPを使用する技術。日本のフレッツ網接続で一般的です。\n\n### MTU / MSS 調整の重要性\nPPPoEヘッダ（6バイト）とPPP ID（2バイト）が付加されるため、通常のイーサネットMTU（1500）から8バイト引いた **1492バイト** が最大値となります。\nさらにNTT網内では **1454バイト** が推奨されることが多く、設定を誤るとWebサイトが見られない等の不具合（Path MTU Discovery ブラックホール）が発生します。\n\n**Yamaha設定例:**\n`ppp lcp mru on 1454`\n`ip pp mtu 1454`"
+      }
+    ]
+  },
+  {
+    "category": "トランスポート & アプリケーション (Services)",
+    "icon": "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01\"></path>",
+    "topics": [
+      { 
+        "title": "トランスポート層: TCP vs UDP", 
+        "description": "3Wayハンドシェイク、フロー制御、LFN問題、用途(リアルタイム性)", 
+        "tags": ["L4", "パフォーマンス"],
+        "details": "### TCP (Transmission Control Protocol)\n- **特徴**: コネクション型、信頼性あり。\n- **仕組み**: 3ウェイハンドシェイク(SYN, SYN/ACK, ACK)で接続確立。シーケンス番号で順序制御、ACKで到達確認、ウィンドウサイズでフロー制御を行う。\n- **用途**: Web, メール, ファイル転送。\n\n### UDP (User Datagram Protocol)\n- **特徴**: コネクションレス型、高速、信頼性はアプリ任せ。\n- **用途**: DNS, DHCP, 音声(VoIP), 映像ストリーミング。"
+      },
+      { 
+        "title": "DNSとDHCP", 
+        "description": "レコード(A/MX/CNAME)、再帰/反復クエリ、DORAプロセス、DHCPリレー", 
+        "tags": ["インフラ", "サービス"],
+        "details": "### DNS (Domain Name System)\nドメイン名とIPアドレスを紐付けるシステム。\n- **Aレコード**: ホスト名→IPアドレス\n- **MXレコード**: メール配送先\n- **CNAME**: 別名定義\n\n### DHCP (Dynamic Host Configuration Protocol)\nIPアドレス自動配布プロトコル。\n**DORAプロセス**:\n1. **D**iscover (クライアント→全体): 誰かIPちょうだい\n2. **O**ffer (サーバ→クライアント): このIPどう？\n3. **R**equest (クライアント→サーバ): そのIP使います\n4. **A**cknowledge (サーバ→クライアント): 了解、登録しました"
+      },
+      { 
+        "title": "Web技術の進化 (HTTP/1.1~3)", 
+        "description": "Keep-Alive、HOL Blocking問題、QUIC(UDP)によるHTTP/3の革新", 
+        "tags": ["Web", "トレンド"],
+        "details": "### HTTPの進化\n- **HTTP/1.1**: Keep-AliveでTCP接続を使い回すが、リクエストは順次処理（HOLブロッキングの問題あり）。\n- **HTTP/2**: ストリーム多重化により並列処理を実現。ただしTCPレベルでの遅延影響は残る。\n- **HTTP/3**: 下位プロトコルに **QUIC (UDPベース)** を採用。TCPの再送待ちによる遅延（HOLブロッキング）を完全に解消し、高速化とセキュリティ(TLS1.3必須)を実現。"
+      },
+      { 
+        "title": "VoIPとマルチキャスト", 
+        "description": "SIP/RTP/QoS(LLQ)、IGMP Snooping、PIM-SMによる配信ツリー", 
+        "tags": ["音声", "マルチキャスト"],
+        "details": "### VoIP (Voice over IP)\n- **SIP**: 呼制御（発着信）。TCP/UDP 5060。\n- **RTP**: 音声データの転送。UDP。\n音声は遅延や揺らぎ（ジッタ）に弱いため、ルータでの **QoS (LLQ: Low Latency Queuing)** 設定による優先制御が必須です。\n\n### マルチキャスト\n特定のグループに一斉配信する技術。\n- **IGMP**: ホストがグループ参加をルータに通知。\n- **IGMP Snooping**: L2スイッチが不要なポートへのマルチキャスト転送を止める機能。"
+      }
+    ]
+  },
+  {
+    "category": "ネットワークセキュリティ & VPN",
+    "icon": "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z\"></path>",
+    "topics": [
+      { 
+        "title": "脅威と防御 (FW/NGFW)", 
+        "description": "ステートフルインスペクションからNGFW(アプリ識別)への進化", 
+        "tags": ["セキュリティ", "防御"],
+        "details": "### ファイアウォールの種類\n- **パケットフィルタリング**: IPとポート番号だけで判断。戻りパケットも明示的に許可が必要。\n- **ステートフルインスペクション**: 通信の状態（セッション）を記憶し、戻りパケットを自動許可する。現在のFWの基本機能。\n- **NGFW (次世代FW)**: L7（アプリケーション層）まで検査。「Facebookは許可するが、Facebookゲームは禁止」といった制御が可能。"
+      },
+      { 
+        "title": "VPN技術詳解 (IPsec/SSL)", 
+        "description": "IKEv1 vs IKEv2、フェーズ概念、SSL-VPN(トンネル/ポータルモード)", 
+        "tags": ["VPN", "暗号化"],
+        "details": "### IPsec VPN\n拠点間接続で主に使用。\n- **IKEv1**: メインモード/アグレッシブモード等の複雑なフェーズがある。\n- **IKEv2**: 手順が簡素化され、再接続性やNATトラバーサル標準対応などモバイル環境に強い。\n\n### SSL-VPN\nPCにインストールしたクライアントソフトやブラウザを使用。\n- **トンネルモード**: 仮想NICを作成し、全通信をVPN経由にする。\n- **ポータルモード**: ブラウザで特定のWebアプリのみアクセスする。"
+      },
+      { 
+        "title": "暗号化とPKI", 
+        "description": "共通鍵/公開鍵、CA/証明書/CRL/OCSP、運用上の失効管理", 
+        "tags": ["認証", "PKI"],
+        "details": "### 暗号化方式\n- **共通鍵暗号 (AES)**: 高速。データの暗号化に使用。鍵の受け渡しが課題。\n- **公開鍵暗号 (RSA)**: 低速。鍵交換や認証に使用。\nハイブリッド暗号方式（SSL/TLSなど）では、鍵交換を公開鍵で行い、データ通信は共通鍵で行います。\n\n### PKI (公開鍵基盤)\n「その公開鍵が本物であること」を第三者(CA)が保証する仕組み。\n証明書の有効期限切れや、CRL/OCSPによる失効確認の失敗は、システム障害の主要因となるため運用管理が重要です。"
+      },
+      { 
+        "title": "インフラエンジニアのセキュアコーディング", 
+        "description": "OWASP Top 10、入力検証、最小特権の原則 (IaC含む)", 
+        "tags": ["セキュリティ", "DevSecOps"],
+        "details": "### インフラとコード\nIaC (Infrastructure as Code) の普及により、インフラエンジニアもコードの脆弱性を意識する必要があります。\n\n- **最小特権の原則**: 必要最低限の権限しか与えない（例: AWS IAMロール）。\n- **シークレット管理**: パスワードやAPIキーをコードにハードコーディングせず、環境変数やSecrets Managerを使用する。\n- **入力検証**: 外部からの入力値は常に疑い、サニタイズや型チェックを行う。"
+      }
+    ]
+  },
+  {
+    "category": "サーバー・仮想化・クラウド",
+    "icon": "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z\"></path>",
+    "topics": [
+      { 
+        "title": "Linuxサーバ構築 (CentOS 9)", 
+        "description": "nmcli(NW), sshd_config(堅牢化), firewalld, SELinux運用", 
+        "tags": ["Linux", "構築"],
+        "details": "### 基本構築ポイント\n1. **ネットワーク**: `nmcli` コマンドで固定IP設定。\n2. **SSH堅牢化**: `/etc/ssh/sshd_config` で `PermitRootLogin no` (Rootログイン禁止)、`PasswordAuthentication no` (鍵認証強制) を設定。\n3. **FW**: `firewall-cmd` で必要なポート（80, 443等）のみ開放。\n4. **SELinux**: 安易に無効化せず、アクセス拒否ログ (`/var/log/audit/audit.log`) を解析して許可ポリシーを追加するのが正攻法。"
+      },
+      { 
+        "title": "ストレージネットワーキング", 
+        "description": "DAS/NAS/SANの違い、iSCSI vs FC-SANの特性", 
+        "tags": ["ストレージ", "インフラ"],
+        "details": "### ストレージ接続形態\n- **DAS (Direct Attached)**: サーバ直結。共有不可。\n- **NAS (Network Attached)**: LAN接続。ファイル共有(NFS/SMB)。手軽。\n- **SAN (Storage Area Network)**: ブロックアクセス専用ネットワーク。\n    - **FC-SAN**: 光ファイバーと専用スイッチを使用。超高速・低遅延。\n    - **IP-SAN (iSCSI)**: TCP/IPネットワークを使用。安価に構築可能。"
+      },
+      { 
+        "title": "仮想化とクラウドモデル", 
+        "description": "VM vs コンテナ(Docker)、SDN/NFVによるネットワーク仮想化", 
+        "tags": ["仮想化", "クラウド"],
+        "details": "### 仮想化技術の比較\n- **VM (仮想マシン)**: ハイパーバイザー上でOSごと仮想化。完全な隔離性があるが、リソース消費が大きい。\n- **コンテナ (Docker等)**: ホストOSのカーネルを共有し、プロセスとして分離。軽量・高速だが隔離レベルはVMより低い。\n\n### ネットワーク仮想化\n- **SDN**: 制御プレーンとデータ転送プレーンを分離し、ソフトウェアで集中管理。\n- **NFV**: ルータやFW等の専用機器の機能を、汎用サーバ上の仮想マシンとして実装。"
+      }
+    ]
+  },
+  {
+    "category": "実践スキル & ツール",
+    "icon": "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z\"></path>",
+    "topics": [
+      { 
+        "title": "Wiresharkパケット解析", 
+        "description": "キャプチャ/ディスプレイフィルタ、TCP Stream追跡、Delta Time分析", 
+        "tags": ["解析", "ツール"],
+        "details": "### 解析の定石\n1. **Capture Filter**: 取得段階でデータ量を絞る（例: `host 192.168.1.1`）。\n2. **Display Filter**: 表示段階で絞る（例: `ip.addr == 192.168.1.1 && tcp.flags.syn == 1`）。\n3. **Follow TCP Stream**: パケットを再構築し、アプリ層のやり取り（HTMLの中身など）を確認。\n4. **Delta Time**: パケット間の時間差を確認し、ネットワーク遅延かサーバ処理遅延かを切り分ける。"
+      },
+      { 
+        "title": "インフラ自動化 (IaC)", 
+        "description": "Ansible/Terraform、Gitによる構成管理とバージョン管理", 
+        "tags": ["自動化", "DevOps"],
+        "details": "### IaC (Infrastructure as Code)\nインフラの構築・設定をコードで管理すること。\n- **Ansible**: エージェントレス。構成管理（サーバの中身の設定）に強い。\n- **Terraform**: クラウドのリソース管理（EC2やVPCの作成）に強い。\n\n**メリット**:\n- 手順書不要で再現性がある。\n- Gitで変更履歴を管理できる。\n- オペレーションミス（ヒューマンエラー）を排除できる。"
+      }
+    ]
+  }
+]
