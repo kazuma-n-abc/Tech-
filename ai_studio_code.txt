@@ -1,0 +1,80 @@
+[
+  {
+    "category": "ネットワーク基礎 & L1/L2 (Access)",
+    "icon": "network-wired",
+    "topics": [
+      { "title": "ネットワーク基礎とOSI参照モデル", "description": "プロトコル、トポロジー、OSI 7階層の役割とデータフロー", "tags": ["基礎", "理論"] },
+      { "title": "データ表現と計算", "description": "2進数・10進数・16進数の変換、ビットとバイトの理解", "tags": ["基礎", "計算"] },
+      { "title": "イーサネットと物理層", "description": "UTP/光ケーブル、コネクタ、CSMA/CD、MACアドレスの構造", "tags": ["基礎", "L1/L2"] },
+      { "title": "スイッチング技術基礎", "description": "L2スイッチの動作原理、MACアドレステーブル、全二重/半二重", "tags": ["重要", "L2"] },
+      { "title": "VLAN (Virtual LAN)", "description": "アクセス/トランクポート、IEEE802.1QタグVLAN、Q-in-Q", "tags": ["重要", "構築"] },
+      { "title": "STP (Spanning Tree Protocol)", "description": "ループ防止、BPDU、RSTP/MSTP、ポートステータスの遷移", "tags": ["重要", "L2"] },
+      { "title": "リンクアグリゲーション & スタック", "description": "LACP、EtherChannel、スイッチの冗長化と帯域拡張", "tags": ["応用", "L2"] },
+      { "title": "PoE (Power over Ethernet)", "description": "PoE/PoE+/PoE++の規格、給電の仕組み", "tags": ["基礎", "設備"] }
+    ]
+  },
+  {
+    "category": "IPルーティング & L3 (Core/Distribution)",
+    "icon": "sitemap",
+    "topics": [
+      { "title": "IPアドレッシングとサブネット", "description": "クラス、CIDR、VLSM、サブネット計算、プライベート/グローバルIP", "tags": ["必須", "計算"] },
+      { "title": "ARPとICMP", "description": "ARPテーブル、GARP、Ping/Tracerouteの仕組み", "tags": ["基礎", "トラブルシュート"] },
+      { "title": "ルーティング基礎", "description": "ルーティングテーブルの見方、AD値、メトリック、Staticルート", "tags": ["重要", "L3"] },
+      { "title": "OSPF (Open Shortest Path First)", "description": "リンクステート型、エリア概念、LSAタイプ、DR/BDR選出", "tags": ["重要", "プロトコル"] },
+      { "title": "BGP (Border Gateway Protocol)", "description": "AS概念、パス属性、EBGP/IBGP、経路制御", "tags": ["応用", "ISP"] },
+      { "title": "FHRP (デフォルトGW冗長化)", "description": "VRRP、HSRPの仕組みとマスター/バックアップ選出", "tags": ["構築", "冗長化"] },
+      { "title": "NAT / NAPT", "description": "アドレス変換技術、Static NAT、Dynamic NAT、PAT", "tags": ["重要", "インターネット"] },
+      { "title": "IPv6基礎", "description": "アドレス表記、ユニキャスト/マルチキャスト、SLAAC、NDP", "tags": ["次世代", "L3"] },
+      { "title": "WAN技術", "description": "PPPoE、IP-VPN、広域イーサネット、SD-WAN概要", "tags": ["WAN", "回線"] }
+    ]
+  },
+  {
+    "category": "トランスポート & アプリケーション (Services)",
+    "icon": "server",
+    "topics": [
+      { "title": "TCP / UDP", "description": "3ウェイハンドシェイク、フロー制御、ポート番号、コネクションレス通信", "tags": ["基礎", "L4"] },
+      { "title": "DNS (Domain Name System)", "description": "正引き/逆引き、レコード種別(A/MX/CNAME)、再帰問い合わせ", "tags": ["必須", "インフラ"] },
+      { "title": "DHCP", "description": "IP払い出しプロセス(DORA)、リレーエージェント、スヌーピング", "tags": ["基礎", "運用"] },
+      { "title": "Web技術 (HTTP/HTTPS)", "description": "HTTPメソッド、ステータスコード、HTTP/2・3、Cookie", "tags": ["Web", "アプリ"] },
+      { "title": "メールシステム", "description": "SMTP/POP/IMAP、リレー、サブミッションポート", "tags": ["アプリ", "メール"] },
+      { "title": "ファイル転送 (FTP/TFTP)", "description": "アクティブ/パッシブモード、FTPのポート動作", "tags": ["基礎", "運用"] },
+      { "title": "ネットワーク管理 (SNMP/Syslog/NTP)", "description": "MIB/OID、トラップ、ログレベル、時刻同期", "tags": ["運用", "監視"] }
+    ]
+  },
+  {
+    "category": "ネットワークセキュリティ & VPN",
+    "icon": "shield-alt",
+    "topics": [
+      { "title": "ファイアウォールとACL", "description": "ステートフルインスペクション、標準/拡張ACL、フィルタリング", "tags": ["重要", "防御"] },
+      { "title": "VPN技術 (IPsec / SSL-VPN)", "description": "IKEフェーズ、ESP/AH、トンネル/トランスポートモード、リモートアクセス", "tags": ["重要", "暗号化"] },
+      { "title": "暗号化と認証基盤 (PKI)", "description": "共通鍵/公開鍵、デジタル署名、証明書(CA/CRL)、SSL/TLS", "tags": ["理論", "セキュリティ"] },
+      { "title": "認証セキュリティ", "description": "Radius、TACACS+、AD連携、IEEE802.1X、多要素認証", "tags": ["認証", "ID"] },
+      { "title": "無線LANセキュリティ", "description": "WEP/WPA/WPA2/WPA3の違い、PSKとEnterprise", "tags": ["無線", "Wi-Fi"] },
+      { "title": "攻撃手法と対策", "description": "DoS/DDoS、スプーフィング、マルウェア、UTM/IDS/IPSの役割", "tags": ["脅威", "対策"] },
+      { "title": "セキュアメール", "description": "SPF、DKIM、DMARC、S/MIMEによるなりすまし対策", "tags": ["メール", "対策"] }
+    ]
+  },
+  {
+    "category": "サーバー・仮想化・クラウド",
+    "icon": "cloud",
+    "topics": [
+      { "title": "Linux基礎 (CentOS Stream 9)", "description": "OSインストール、基本コマンド、ファイルシステム、権限管理", "tags": ["Linux", "OS"] },
+      { "title": "Windows Server & AD", "description": "Active Directory、ドメインコントローラ、OU、GPO基礎", "tags": ["Windows", "管理"] },
+      { "title": "仮想化技術", "description": "ハイパーバイザー型(ESXi) vs コンテナ型(Docker)、仮想スイッチ", "tags": ["仮想化", "トレンド"] },
+      { "title": "ストレージ技術", "description": "RAIDレベル(0/1/5/6/10)、NAS vs SAN (iSCSI/FC)", "tags": ["HW", "保存"] },
+      { "title": "ロードバランサ (負荷分散)", "description": "L4/L7分散、ラウンドロビン、ヘルスチェック、パーシステンス", "tags": ["冗長化", "Web"] },
+      { "title": "クラウド基礎", "description": "IaaS/PaaS/SaaSの定義、オンプレミスとの違い、AWS/Azure概要", "tags": ["クラウド", "概念"] }
+    ]
+  },
+  {
+    "category": "実践スキル & ツール",
+    "icon": "tools",
+    "topics": [
+      { "title": "Cisco IOS操作基礎", "description": "モード遷移、show run/ver/int、保存、パスワードリカバリ", "tags": ["実機", "Cisco"] },
+      { "title": "Wiresharkパケット解析", "description": "キャプチャ取得、フィルタリング、TCPストリーム追跡、トラブルシュート", "tags": ["実技", "解析"] },
+      { "title": "Fortigate / Yamaha設定", "description": "PPPoE接続設定、インターフェース設定、基本ポリシー作成", "tags": ["実機", "構築"] },
+      { "title": "トラブルシューティング手法", "description": "切り分けフロー、Ping/Trace/Telnet活用、ログ分析", "tags": ["実務", "必須"] },
+      { "title": "ネットワーク図作成", "description": "論理構成図と物理構成図、アイコンの使い分け", "tags": ["ドキュメント", "設計"] }
+    ]
+  }
+]
