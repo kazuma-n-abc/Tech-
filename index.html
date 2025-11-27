@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Engineering Training Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .active-nav { background-color: #eff6ff; color: #2563eb; border-right: 3px solid #2563eb; }
+
+        /* Markdown Styles inside Modal */
+        .prose h3 { font-weight: 700; font-size: 1.25rem; margin-top: 1.5em; margin-bottom: 0.5em; color: #1e293b; }
+        .prose p { margin-bottom: 1em; line-height: 1.6; color: #334155; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose strong { color: #0f172a; font-weight: 600; }
+        .prose code { background-color: #f1f5f9; padding: 0.2em 0.4em; border-radius: 0.25em; font-family: monospace; color: #e11d48; font-size: 0.9em; }
+        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+        .prose th, .prose td { border: 1px solid #e2e8f0; padding: 0.5em; text-align: left; }
+        .prose th { background-color: #f8fafc; font-weight: 600; }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-50 bg-slate-100 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md border border-slate-200">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">NetStudy Pro</h2>
+                <p class="text-slate-500 text-sm mt-2">社内ネットワーク研修ポータルへログイン</p>
+            </div>
+            
+            <form id="login-form" class="space-y-6" onsubmit="App.handleLogin(event)">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-slate-700">ユーザー名</label>
+                    <input type="text" id="username" name="username" required 
+                        class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                        focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700">パスワード</label>
+                    <input type="password" id="password" name="password" required 
+                        class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                        focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                
+                <div id="login-error" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-md border border-red-200">
+                    ユーザー名またはパスワードが間違っています。
+                </div>
+
+                <button type="submit" 
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    ログイン
+                </button>
+            </form>
+            <p class="mt-4 text-center text-xs text-slate-400">
+                ※DB接続が必要です。デモ用アカウント: admin / password
+            </p>
+        </div>
+    </div>
+
+    <!-- APP CONTAINER (Hidden until logged in) -->
+    <div id="app-container" class="hidden h-full flex">
+        
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden fixed top-4 right-4 z-50 bg-white p-2 rounded shadow text-slate-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white w-64 flex-shrink-0 border-r border-slate-200 flex flex-col transition-transform transform -translate-x-full md:translate-x-0 fixed md:relative z-40 h-full">
+            <div class="p-6 border-b border-slate-100">
+                <h1 class="text-xl font-bold text-blue-700 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    NetStudy Pro
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">社内ネットワーク研修 カリキュラム</p>
+            </div>
+
+            <!-- Total Progress -->
+            <div class="px-6 py-4">
+                <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-slate-500">全体の進捗</span>
+                    <span class="text-blue-600" id="total-progress-text">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2">
+                    <div id="total-progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-2 space-y-1" id="nav-container">
+                <!-- Nav items will be injected here -->
+            </nav>
+
+            <!-- Extra Tools -->
+            <div class="px-4 py-2 border-t border-slate-100">
+                <p class="px-2 text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Tools</p>
+                <button onclick="App.switchView('quiz')" id="nav-quiz" class="w-full text-left group flex items-center px-2 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-md transition-colors">
+                    <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    理解度クイズ
+                </button>
+                <button onclick="App.switchView('cheatsheet')" id="nav-cheatsheet" class="w-full text-left group flex items-center px-2 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-md transition-colors">
+                    <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Ciscoコマンド集
+                </button>
+            </div>
+
+            <!-- Logout -->
+            <div class="p-4 border-t border-slate-100">
+                <button onclick="App.handleLogout()" class="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    ログアウト
+                </button>
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden w-full relative bg-slate-50">
+            
+            <!-- Header -->
+            <header class="bg-white border-b border-slate-200 p-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0 shadow-sm z-10">
+                <h2 id="current-category-title" class="text-lg font-bold text-slate-800 w-full md:w-auto truncate flex items-center gap-2">
+                    <!-- Title injected by JS -->
+                </h2>
+                
+                <!-- Search Bar -->
+                <div id="search-container" class="relative w-full md:w-72 transition-opacity duration-200">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" id="search-input" placeholder="トピックを検索..." 
+                        class="w-full py-2 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                </div>
+            </header>
+
+            <!-- Scrollable Content Area -->
+            <div id="main-scroll-area" class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+                <div id="view-curriculum" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="view-quiz" class="hidden max-w-2xl mx-auto"></div>
+                <div id="view-cheatsheet" class="hidden max-w-4xl mx-auto"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="details-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/75 transition-opacity backdrop-blur-sm" onclick="App.closeModal()"></div>
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl max-h-[80vh] flex flex-col">
+                <div class="bg-white px-4 py-4 sm:px-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold leading-6 text-slate-900" id="modal-title">Topic Title</h3>
+                    <button onclick="App.closeModal()" class="text-slate-400 hover:text-slate-500 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="px-4 py-5 sm:p-6 overflow-y-auto prose prose-sm max-w-none" id="modal-content"></div>
+                <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-slate-100">
+                    <button type="button" onclick="App.closeModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Static Data Definitions (Quiz & Cheatsheet) ---
+        const quizData = [
+            { question: "OSI参照モデルの第2層（データリンク層）で扱われるデータの単位（PDU）はどれか？", options: ["パケット", "セグメント", "フレーム", "ビット"], answer: 2, explanation: "L1はビット、L2はフレーム、L3はパケット、L4はセグメントと呼ばれます。" },
+            { question: "IPv4アドレスの枯渇対策として導入された、プライベートIPとグローバルIPを変換する技術はどれか？", options: ["DHCP", "DNS", "NAPT (IPマスカレード)", "ARP"], answer: 2, explanation: "NAPT（Network Address Port Translation）は、1つのグローバルIPアドレスを複数のプライベートIPアドレスで共有してインターネット接続を行う技術です。" },
+            { question: "IEEE 802.1Qで規定されているVLANタグのサイズは何バイトか？", options: ["2バイト", "4バイト", "8バイト", "64バイト"], answer: 1, explanation: "イーサネットフレームの送信元MACアドレスとタイプフィールドの間に、4バイトのタグ情報が挿入されます。" },
+            { question: "スイッチングハブにおいて、宛先MACアドレスがテーブルに存在しない場合の動作はどれか？", options: ["破棄 (Discard)", "返送 (Return)", "フラッディング (Flooding)", "バッファリング"], answer: 2, explanation: "宛先不明のユニキャストフレームは、受信ポート以外のすべてのポートへ転送（フラッディング）されます。" },
+            { question: "PoE+ (IEEE 802.3at) の最大供給電力（PSE側）はどれか？", options: ["15.4W", "30.0W", "60.0W", "90.0W"], answer: 1, explanation: "PoE(af)は15.4W、PoE+(at)は30.0W、PoE++(bt)はType3で60W、Type4で100Wまで供給可能です。" },
+            { question: "ネットワークのループを防止するために使用されるプロトコルはどれか？", options: ["STP", "OSPF", "BGP", "LACP"], answer: 0, explanation: "STP (Spanning Tree Protocol) は、冗長構成時に論理的にポートをブロックし、ループを防ぎます。" },
+            { question: "標準的なイーサネット(MTU 1500)上で、PPPoEを使用する場合の推奨MSS/MTU調整値として一般的なものは？", options: ["1518", "1500", "1492 または 1454", "1280"], answer: 2, explanation: "PPPoEヘッダ等のオーバーヘッドがあるため、1500から引く必要があります。NTT網などでは1454バイトが推奨設定となることが多いです。" },
+            { question: "Pingコマンドが使用するプロトコルはどれか？", options: ["TCP", "UDP", "ICMP", "ARP"], answer: 2, explanation: "PingはICMP (Internet Control Message Protocol) のEcho Request/Replyを使用します。" },
+            { question: "2進数の「1010」を10進数に変換した値はどれか？", options: ["8", "10", "12", "16"], answer: 1, explanation: "8 + 0 + 2 + 0 = 10 となります。" },
+            { question: "光ファイバーケーブルにおいて、長距離伝送に適しているモードはどれか？", options: ["シングルモード", "マルチモード", "CAT6A", "同軸"], answer: 0, explanation: "シングルモード光ファイバー(SMF)は、コア径が小さく光の分散が少ないため、長距離・高速通信に適しています。" }
+        ];
+
+        const cheatSheetData = [
+            { section: "モード遷移 & 基本", commands: [{ cmd: "enable", desc: "特権EXECモードへ移行" }, { cmd: "configure terminal", desc: "グローバルコンフィギュレーションモードへ移行" }, { cmd: "exit / end", desc: "1つ戻る / 特権モードへ戻る" }, { cmd: "write memory", desc: "設定保存 (copy run start と同義)" }, { cmd: "show running-config", desc: "現在稼働中の設定を表示" }] },
+            { section: "インターフェース設定", commands: [{ cmd: "interface gi0/1", desc: "インターフェース選択" }, { cmd: "ip address [IP] [Mask]", desc: "IPアドレス設定" }, { cmd: "no shutdown", desc: "ポート有効化" }, { cmd: "switchport mode access", desc: "アクセスポート設定" }, { cmd: "switchport access vlan 10", desc: "VLAN割り当て" }] },
+            { section: "ルーティング & 確認", commands: [{ cmd: "ip route [Dest] [Mask] [NextHop]", desc: "スタティックルート設定" }, { cmd: "show ip interface brief", desc: "IFのIPと状態を一覧表示（最重要）" }, { cmd: "show ip route", desc: "ルーティングテーブル確認" }, { cmd: "show vlan brief", desc: "VLAN情報確認" }, { cmd: "show interfaces status", desc: "ポートの物理層/L2状態確認" }] }
+        ];
+
+        let curriculumData = [];
+
+        // --- Application Logic ---
+        const App = {
+            currentCategoryIndex: 0,
+            searchQuery: "",
+            completedItems: new Set(),
+            viewMode: 'curriculum',
+            currentQuizIndex: 0,
+            quizScore: 0,
+            quizAnswered: false,
+
+            async init() {
+                this.cacheDOM();
+                
+                // 1. Check Authentication
+                await this.checkAuth();
+                
+                // 2. Load Data and Initialize UI (only if auth passes or demo mode)
+                // Note: In this static demo, we might fail checkAuth, so we handle UI accordingly
+            },
+
+            async checkAuth() {
+                try {
+                    const res = await fetch('check_auth.php');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.authenticated) {
+                            this.showApp();
+                            this.initializeAppLogic();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Backend not reachable. PHP environment required for login.");
+                }
+                this.showLogin();
+            },
+
+            async handleLogin(e) {
+                e.preventDefault();
+                const form = document.getElementById('login-form');
+                const formData = new FormData(form);
+                const errorEl = document.getElementById('login-error');
+
+                try {
+                    const res = await fetch('login.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success) {
+                            this.showApp();
+                            this.initializeAppLogic();
+                            return;
+                        }
+                    } else {
+                        // Fallback for demo if PHP is missing (Allow admin/password)
+                        const u = formData.get('username');
+                        const p = formData.get('password');
+                        if (u === 'admin' && p === 'password') {
+                            alert("デモモードでログインしました (PHP環境が見つかりません)");
+                            this.showApp();
+                            this.initializeAppLogic();
+                            return;
+                        }
+                    }
+                } catch (err) {
+                     // Fallback for demo
+                     const u = formData.get('username');
+                     const p = formData.get('password');
+                     if (u === 'admin' && p === 'password') {
+                        alert("デモモードでログインしました (PHP環境が見つかりません)");
+                        this.showApp();
+                        this.initializeAppLogic();
+                        return;
+                    }
+                }
+                
+                errorEl.classList.remove('hidden');
+            },
+
+            async handleLogout() {
+                try {
+                    await fetch('logout.php', { method: 'POST' });
+                } catch (e) { console.error(e); }
+                location.reload();
+            },
+
+            showLogin() {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+            },
+
+            showApp() {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+            },
+
+            async initializeAppLogic() {
+                await this.loadCurriculumData();
+                this.loadProgress();
+                this.bindEvents();
+                this.renderSidebar();
+                this.renderCards();
+                this.updateTotalProgress();
+            },
+
+            async loadCurriculumData() {
+                try {
+                    const response = await fetch('curriculum.json');
+                    if (!response.ok) throw new Error('Data load failed');
+                    curriculumData = await response.json();
+                } catch (error) {
+                    this.containers.curriculum.innerHTML = `<div class="col-span-full text-center text-red-500 p-10">データの読み込みに失敗しました。</div>`;
+                }
+            },
+
+            cacheDOM() {
+                this.sidebar = document.getElementById('sidebar');
+                this.navContainer = document.getElementById('nav-container');
+                this.categoryTitle = document.getElementById('current-category-title');
+                this.searchInput = document.getElementById('search-input');
+                this.searchContainer = document.getElementById('search-container');
+                this.totalProgressBar = document.getElementById('total-progress-bar');
+                this.totalProgressText = document.getElementById('total-progress-text');
+                this.mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                this.sidebarOverlay = document.getElementById('sidebar-overlay');
+                this.detailsModal = document.getElementById('details-modal');
+                this.modalContent = document.getElementById('modal-content');
+                this.modalTitle = document.getElementById('modal-title');
+                this.containers = {
+                    curriculum: document.getElementById('view-curriculum'),
+                    quiz: document.getElementById('view-quiz'),
+                    cheatsheet: document.getElementById('view-cheatsheet')
+                };
+            },
+
+            bindEvents() {
+                this.searchInput.addEventListener('input', (e) => { this.searchQuery = e.target.value.toLowerCase(); this.renderCards(); });
+                this.mobileMenuBtn.addEventListener('click', () => this.toggleMobileSidebar());
+                this.sidebarOverlay.addEventListener('click', () => this.toggleMobileSidebar());
+            },
+
+            toggleMobileSidebar() {
+                this.sidebar.classList.toggle('-translate-x-full');
+                this.sidebarOverlay.classList.toggle('hidden');
+            },
+
+            loadProgress() {
+                const stored = localStorage.getItem('netStudyProgress');
+                if (stored) this.completedItems = new Set(JSON.parse(stored));
+            },
+
+            saveProgress() {
+                localStorage.setItem('netStudyProgress', JSON.stringify([...this.completedItems]));
+                this.updateTotalProgress();
+            },
+
+            switchView(mode) {
+                this.viewMode = mode;
+                Object.values(this.containers).forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('#nav-container a').forEach(el => el.classList.remove('active-nav', 'text-blue-600', 'bg-slate-50'));
+                ['nav-quiz', 'nav-cheatsheet'].forEach(id => document.getElementById(id).classList.remove('text-blue-600', 'bg-slate-50'));
+
+                if (mode === 'curriculum') {
+                    this.containers.curriculum.classList.remove('hidden');
+                    this.searchContainer.classList.remove('opacity-0', 'pointer-events-none');
+                    this.renderCards();
+                } else if (mode === 'quiz') {
+                    this.containers.quiz.classList.remove('hidden');
+                    this.searchContainer.classList.add('opacity-0', 'pointer-events-none');
+                    this.categoryTitle.innerText = "理解度確認クイズ";
+                    document.getElementById('nav-quiz').classList.add('text-blue-600', 'bg-slate-50');
+                    this.startQuiz();
+                } else if (mode === 'cheatsheet') {
+                    this.containers.cheatsheet.classList.remove('hidden');
+                    this.searchContainer.classList.add('opacity-0', 'pointer-events-none');
+                    this.categoryTitle.innerText = "Ciscoコマンド チートシート";
+                    document.getElementById('nav-cheatsheet').classList.add('text-blue-600', 'bg-slate-50');
+                    this.renderCheatSheet();
+                }
+                if (window.innerWidth < 768) this.toggleMobileSidebar();
+            },
+
+            selectCategory(index) {
+                this.currentCategoryIndex = index;
+                this.searchQuery = "";
+                this.searchInput.value = "";
+                this.renderSidebar();
+                this.switchView('curriculum');
+            },
+
+            renderSidebar() {
+                if (!curriculumData.length) return;
+                this.navContainer.innerHTML = curriculumData.map((cat, index) => `
+                    <a href="#" class="group flex items-center px-6 py-3 text-sm font-medium transition-colors ${index === this.currentCategoryIndex && this.viewMode === 'curriculum' ? 'active-nav' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}" onclick="App.selectCategory(${index})">
+                        <svg class="w-5 h-5 mr-3 ${index === this.currentCategoryIndex && this.viewMode === 'curriculum' ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">${cat.icon}</svg>
+                        ${cat.category.split('&')[0]}
+                    </a>
+                `).join('');
+            },
+
+            renderCards() {
+                if (!curriculumData.length) return;
+                let targetData = [];
+                if (this.searchQuery.length > 0) {
+                    this.categoryTitle.innerText = `検索結果: "${this.searchQuery}"`;
+                    curriculumData.forEach(cat => { cat.topics.forEach(topic => { if (JSON.stringify(topic).toLowerCase().includes(this.searchQuery)) targetData.push({ ...topic, categoryName: cat.category }); }); });
+                } else {
+                    const category = curriculumData[this.currentCategoryIndex];
+                    this.categoryTitle.innerHTML = `<span class="text-blue-600 mr-2">${category.icon}</span>${category.category}`;
+                    targetData = category.topics;
+                }
+                if (targetData.length === 0) {
+                    this.containers.curriculum.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10">トピックが見つかりませんでした。</div>`;
+                    return;
+                }
+                this.containers.curriculum.innerHTML = targetData.map(topic => {
+                    const isCompleted = this.completedItems.has(topic.title);
+                    const topicJson = JSON.stringify(topic).replace(/"/g, '&quot;');
+                    return `
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 transition-all duration-200 ${isCompleted ? 'bg-slate-50 border-blue-100' : 'card-hover shadow-sm'} relative group cursor-pointer" onclick="App.openModal(${topicJson})">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="pr-8">
+                                ${topic.categoryName ? `<span class="text-xs font-semibold text-slate-400 mb-1 block">${topic.categoryName}</span>` : ''}
+                                <h3 class="text-lg font-bold ${isCompleted ? 'text-slate-500' : 'text-slate-800'}">${topic.title}</h3>
+                            </div>
+                            <button onclick="event.stopPropagation(); App.toggleComplete('${topic.title}')" class="absolute top-6 right-6 w-6 h-6 rounded border flex items-center justify-center transition-colors ${isCompleted ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-300 text-transparent hover:border-blue-400'}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed ${isCompleted ? 'opacity-60' : ''}">${topic.description}</p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            ${topic.tags.map(tag => `<span class="px-2 py-1 text-xs font-medium rounded-md ${isCompleted ? 'bg-slate-200 text-slate-500' : 'bg-blue-50 text-blue-600'}">#${tag}</span>`).join('')}
+                        </div>
+                        <div class="absolute bottom-0 left-0 h-1 rounded-b-xl transition-all duration-300 ${isCompleted ? 'w-full bg-blue-500' : 'w-0 bg-blue-500 group-hover:w-full'}"></div>
+                    </div>`;
+                }).join('');
+            },
+
+            toggleComplete(title) {
+                if (this.completedItems.has(title)) this.completedItems.delete(title);
+                else this.completedItems.add(title);
+                this.saveProgress();
+                this.renderCards();
+            },
+
+            updateTotalProgress() {
+                if (!curriculumData.length) return;
+                let total = 0;
+                curriculumData.forEach(cat => total += cat.topics.length);
+                const pct = total === 0 ? 0 : Math.round((this.completedItems.size / total) * 100);
+                this.totalProgressBar.style.width = `${pct}%`;
+                this.totalProgressText.innerText = `${pct}%`;
+            },
+
+            openModal(topic) {
+                this.modalTitle.innerText = topic.title;
+                const markdown = topic.details ? topic.details : `### ${topic.description}\n\n詳細な解説は準備中です。`;
+                this.modalContent.innerHTML = marked.parse(markdown);
+                this.detailsModal.classList.remove('hidden');
+            },
+
+            closeModal() { this.detailsModal.classList.add('hidden'); },
+
+            startQuiz() { this.currentQuizIndex = 0; this.quizScore = 0; this.quizAnswered = false; this.renderQuizQuestion(); },
+            renderQuizQuestion() {
+                if (this.currentQuizIndex >= quizData.length) {
+                    this.containers.quiz.innerHTML = `<div class="bg-white rounded-xl p-8 shadow-lg text-center"><div class="text-6xl mb-4">🏆</div><h3 class="text-2xl font-bold mb-2">クイズ終了！</h3><p class="text-slate-600 mb-6">スコア: <span class="font-bold text-blue-600 text-xl">${this.quizScore} / ${quizData.length}</span></p><button onclick="App.startQuiz()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">もう一度挑戦する</button></div>`;
+                    return;
+                }
+                const q = quizData[this.currentQuizIndex];
+                this.quizAnswered = false;
+                this.containers.quiz.innerHTML = `<div class="bg-white rounded-xl shadow-lg overflow-hidden"><div class="bg-slate-100 px-6 py-4 border-b border-slate-200 flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Q.${this.currentQuizIndex + 1} / ${quizData.length}</span><span class="text-sm text-slate-400">Score: ${this.quizScore}</span></div><div class="p-8"><h3 class="text-xl font-bold text-slate-800 mb-6 leading-snug">${q.question}</h3><div class="space-y-3">${q.options.map((opt, i) => `<button onclick="App.handleQuizAnswer(${i})" id="opt-${i}" class="w-full text-left p-4 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all relative"><span class="font-semibold mr-2 text-slate-400">${['A','B','C','D'][i]}.</span> ${opt}</button>`).join('')}</div><div id="quiz-feedback" class="mt-6 hidden"></div></div></div>`;
+            },
+
+            handleQuizAnswer(idx) {
+                if (this.quizAnswered) return;
+                this.quizAnswered = true;
+                const q = quizData[this.currentQuizIndex];
+                const isCorrect = idx === q.answer;
+                if (isCorrect) this.quizScore++;
+                const btns = document.querySelectorAll('#view-quiz button[id^="opt-"]');
+                btns.forEach((btn, i) => {
+                    btn.disabled = true;
+                    btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50');
+                    if (i === q.answer) { btn.classList.add('bg-green-100', 'border-green-500', 'text-green-900'); btn.innerHTML += `<span class="absolute right-4 top-4 text-green-600 font-bold">◎ 正解</span>`; }
+                    else if (i === idx && !isCorrect) btn.classList.add('bg-red-100', 'border-red-500', 'text-red-900');
+                });
+                document.getElementById('quiz-feedback').classList.remove('hidden');
+                document.getElementById('quiz-feedback').innerHTML = `<div class="p-4 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-slate-50 border border-slate-200'}"><p class="font-bold ${isCorrect ? 'text-green-700' : 'text-slate-700'} mb-1">${isCorrect ? '正解です！' : '残念、不正解です。'}</p><p class="text-sm text-slate-600">${q.explanation}</p><button onclick="App.nextQuizQuestion()" class="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">次へ進む</button></div>`;
+            },
+
+            nextQuizQuestion() { this.currentQuizIndex++; this.renderQuizQuestion(); },
+
+            renderCheatSheet() {
+                this.containers.cheatsheet.innerHTML = `<div class="grid gap-6">${cheatSheetData.map(section => `<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="bg-slate-50 px-6 py-3 border-b border-slate-200 font-bold text-slate-700">${section.section}</div><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100"><tr><th class="px-6 py-3 w-1/2">Command</th><th class="px-6 py-3">Description</th></tr></thead><tbody>${section.commands.map(c => `<tr class="border-b border-slate-100 hover:bg-slate-50"><td class="px-6 py-3 font-mono text-blue-600 font-semibold">${c.cmd}</td><td class="px-6 py-3 text-slate-600">${c.desc}</td></tr>`).join('')}</tbody></table></div></div>`).join('')}</div>`;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => { App.init(); });
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
